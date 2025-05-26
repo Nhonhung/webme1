@@ -169,7 +169,7 @@ export default function ZLS() {
             {
               icon: <Instagram className="w-5 h-5" />,
               label: "Instagram",
-              href: "https://instagram.com/zls",
+              href: "https://www.instagram.com/ducthinh2076",
               color: "#E4405F",
               tooltip: "Instagram",
             },

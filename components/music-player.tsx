@@ -9,28 +9,31 @@ export default function AudioPlayer() {
     const audio = audioRef.current
     if (!audio) return
 
-    // Tự động phát nhạc tắt tiếng
+    // Bắt buộc có để autoplay hoạt động trên iOS
     audio.muted = true
     audio.play().catch((err) => {
       console.log('Muted autoplay failed:', err)
     })
 
-    // Khi người dùng tương tác, bật âm thanh lại
     const enableSound = () => {
+      if (!audio) return
       audio.muted = false
       audio.play().catch((err) => {
         console.log('Unmuted playback failed:', err)
       })
-      window.removeEventListener('click', enableSound)
-      window.removeEventListener('touchstart', enableSound)
+
+      // Xóa listener sau tương tác đầu tiên
+      document.removeEventListener('click', enableSound)
+      document.removeEventListener('touchstart', enableSound)
     }
 
-    window.addEventListener('click', enableSound)
-    window.addEventListener('touchstart', enableSound)
+    // Dùng `document` thay vì `window` cho mobile ổn định hơn
+    document.addEventListener('click', enableSound, { once: true })
+    document.addEventListener('touchstart', enableSound, { once: true })
 
     return () => {
-      window.removeEventListener('click', enableSound)
-      window.removeEventListener('touchstart', enableSound)
+      document.removeEventListener('click', enableSound)
+      document.removeEventListener('touchstart', enableSound)
     }
   }, [])
 
@@ -40,7 +43,8 @@ export default function AudioPlayer() {
       src="/M - web.mp3"
       loop
       autoPlay
-      muted // Tắt tiếng ban đầu để trình duyệt cho phép autoplay
+      muted
+      playsInline // Quan trọng cho iOS Safari
     />
   )
 }
