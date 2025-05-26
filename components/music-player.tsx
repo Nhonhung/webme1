@@ -1,26 +1,36 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
     const audio = audioRef.current
+    if (!audio) return
 
-    if (audio) {
-      const playPromise = audio.play()
+    // Tự động phát nhạc tắt tiếng
+    audio.muted = true
+    audio.play().catch((err) => {
+      console.log('Muted autoplay failed:', err)
+    })
 
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true)
-          })
-          .catch((error) => {
-            console.log('Autoplay failed:', error)
-          })
-      }
+    // Khi người dùng tương tác, bật âm thanh lại
+    const enableSound = () => {
+      audio.muted = false
+      audio.play().catch((err) => {
+        console.log('Unmuted playback failed:', err)
+      })
+      window.removeEventListener('click', enableSound)
+      window.removeEventListener('touchstart', enableSound)
+    }
+
+    window.addEventListener('click', enableSound)
+    window.addEventListener('touchstart', enableSound)
+
+    return () => {
+      window.removeEventListener('click', enableSound)
+      window.removeEventListener('touchstart', enableSound)
     }
   }, [])
 
@@ -28,9 +38,9 @@ export default function AudioPlayer() {
     <audio
       ref={audioRef}
       src="/M - web.mp3"
-      autoPlay
       loop
-      // muted // nếu bạn muốn đảm bảo autoplay hoạt động thì thêm muted
+      autoPlay
+      muted // Tắt tiếng ban đầu để trình duyệt cho phép autoplay
     />
   )
 }
