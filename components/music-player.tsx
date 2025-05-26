@@ -7,16 +7,30 @@ export default function AudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch((error) => {
-          console.log('Auto play failed:', error)
-        })
+    const audio = audioRef.current
+
+    if (audio) {
+      const playPromise = audio.play()
+
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true)
+          })
+          .catch((error) => {
+            console.log('Autoplay failed:', error)
+          })
+      }
     }
   }, [])
 
   return (
-    <audio ref={audioRef} src="/M - web.mp3" loop />
+    <audio
+      ref={audioRef}
+      src="/M - web.mp3"
+      autoPlay
+      loop
+      // muted // nếu bạn muốn đảm bảo autoplay hoạt động thì thêm muted
+    />
   )
 }
